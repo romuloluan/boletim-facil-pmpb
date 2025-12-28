@@ -1,0 +1,15 @@
+
+{
+  "name": "projeto-novo",
+  "version": "1.0.0",
+  "description": "Sistema de Geração de ROPM da PMPB",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "body-parser": "^1.20.2",
+    "pdfmake": "^0.2.7"
+  }
+}

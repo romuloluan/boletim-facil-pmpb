@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROPM - PMPB (Sistema Oficial)</title>
+    <style>
+        :root { --pmpb-blue: #003366; --bg-gray: #f4f4f4; --alert-red: #8b0000; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-gray); margin: 0; padding: 20px; }
+        .container { max-width: 950px; margin: 0 auto; background: white; padding: 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-radius: 8px; }
+        
+        /* Cabeçalho */
+        .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid var(--pmpb-blue); padding-bottom: 20px; margin-bottom: 25px; }
+        .logo { height: 90px; width: auto; object-fit: contain; }
+        .title-box { text-align: center; flex-grow: 1; padding: 0 20px; }
+        .title-box h2 { margin: 0; color: var(--pmpb-blue); font-size: 24px; text-transform: uppercase; letter-spacing: 1px; }
+        .title-box h3 { margin: 5px 0 0; font-size: 16px; color: #555; font-weight: 600; }
+
+        /* Seções */
+        fieldset { border: 1px solid #ddd; border-radius: 6px; margin-bottom: 25px; padding: 20px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        legend { background: var(--pmpb-blue); color: white; padding: 6px 15px; font-weight: bold; border-radius: 4px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .row { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 12px; }
+        .col { flex: 1; min-width: 180px; }
+        .col-small { flex: 0 0 130px; }
+        .col-medium { flex: 0 0 200px; }
+        .col-full { flex: 0 0 100%; }
+        
+        label { display: block; font-weight: 700; margin-bottom: 5px; font-size: 12px; color: #444; text-transform: uppercase; }
+        input, select, textarea { width: 100%; padding: 8px; border: 1px solid #bbb; border-radius: 4px; box-sizing: border-box; font-size: 14px; transition: border-color 0.2s; }
+        input:focus, textarea:focus { border-color: var(--pmpb-blue); outline: none; box-shadow: 0 0 0 2px rgba(0,51,102,0.1); }
+        textarea { resize: vertical; }
+
+        /* Estilos Específicos */
+        .section-title { font-weight: bold; color: var(--pmpb-blue); border-bottom: 2px solid #eee; margin: 15px 0 10px 0; padding-bottom: 5px; font-size: 13px; text-transform: uppercase; }
+        
+        .biometria-box { background-color: #f8f9fa; padding: 15px; border-radius: 5px; border: 1px solid #e9ecef; margin-top: 10px; }
+        .auto-resistencia-box { background-color: #fff5f5; border: 2px solid var(--alert-red); padding: 20px; border-radius: 6px; margin-top: 15px; display: none; }
+        .auto-resistencia-box.active { display: block; animation: fadeIn 0.5s; }
+
+        /* Botões */
+        .btn-add { background-color: #28a745; color: white; border: none; padding: 8px 15px; cursor: pointer; border-radius: 4px; font-size: 12px; font-weight: bold; display: inline-flex; align-items: center; gap: 5px; transition: background 0.2s; }
+        .btn-add:hover { background-color: #218838; }
+        
+        .btn-remove { background-color: #dc3545; color: white; border: none; padding: 4px 10px; cursor: pointer; border-radius: 3px; font-size: 11px; margin-left: auto; margin-bottom: 5px; }
+        .btn-remove:hover { background-color: #c82333; }
+
+        .btn-toggle-ar { width: 100%; background-color: var(--alert-red); color: white; padding: 12px; font-size: 14px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px; text-transform: uppercase; }
+        .btn-toggle-ar:hover { background-color: #660000; }
+
+        .dynamic-item { background: #fcfcfc; border: 1px dashed #ccc; padding: 15px; margin-bottom: 15px; position: relative; border-left-width: 4px; border-left-style: solid; }
+        .item-acusado { border-left-color: var(--alert-red); }
+        .item-vitima { border-left-color: var(--pmpb-blue); }
+        .item-testemunha { border-left-color: #28a745; }
+
+        .guarnicao-box { border-left: 4px solid var(--pmpb-blue); background: #f8f9fa; border-top: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee; padding: 15px; margin-bottom: 20px; }
+        
+        .btn-submit { display: block; width: 100%; padding: 18px; background-color: var(--pmpb-blue); color: white; font-size: 18px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; margin-top: 30px; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-submit:hover { background-color: #002244; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <img src="/assets/logo_pb.png" alt="Brasão Paraíba" class="logo" onerror="this.style.display='none'; alert('Imagem logo_pb.png não encontrada na pasta assets')">
+        
+        <div class="title-box">
+            <h2>Polícia Militar da Paraíba</h2>
+            <h3>Registro de Ocorrência Policial Militar</h3>
+        </div>
+        
+        <img src="/assets/logo_pmpb.png" alt="Brasão PMPB" class="logo" onerror="this.style.display='none'; alert('Imagem logo_pmpb.png não encontrada na pasta assets')">
+    </div>
+
+    <!-- O formulário envia para a rota POST definida no server.js -->
+    <form action="/gerar-boletim" method="POST">
+        
+        <!-- 1. IDENTIFICAÇÃO -->
+        <fieldset>
+            <legend>1. Identificação da Ocorrência</legend>
+            
+            <div class="row">
+                <div class="col">
+                    <label>Unidade (OPM / UOp):</label>
+                    <input type="text" name="unidade" placeholder="Ex: 1º BPM" required>
+                </div>
+                <div class="col-small">
+                    <label>Nº CIOP/COPOM:</label>
+                    <input type="text" name="ciop" placeholder="Protocolo">
+                </div>
+                <div class="col-small">
+                    <label>Nº Boletim:</label>
+                    <input type="text" name="num_boletim">
+                </div>
+                <div class="col-small">
+                    <label>Data:</label>
+                    <input type="date" name="data" required>
+                </div>
+                <div class="col-small">
+                    <label>Hora:</label>
+                    <input type="time" name="hora" required>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col">
+                    <label>Endereço do Fato:</label>
+                    <input type="text" name="endereco" required>
+                </div>
+                <div class="col-medium">
+                    <label>Bairro/Cidade:</label>
+                    <input type="text" name="cidade_bairro">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label>Ponto de Referência:</label>
+                    <input type="text" name="referencia">
+                </div>
+                <div class="col">
+                    <label>Natureza (Cód. Ocorrência):</label>
+                    <input type="text" name="natureza" required>
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- 2. GUARNIÇÃO -->
+        <fieldset>
+            <legend>2. Guarnição Policial</legend>
+            <div id="container-guarnicoes"></div>
+            <button type="button" class="btn-add" style="background-color: var(--pmpb-blue);" onclick="adicionarGuarnicao()">
+                + ADICIONAR NOVA GUARNIÇÃO (APOIO)
+            </button>
+        </fieldset>
+
+        <!-- 3. ENVOLVIDOS -->
+        <fieldset>
+            <legend>3. Envolvidos</legend>
+            
+            <div id="container-vitimas">
+                <div class="section-title" style="color: #003366;">Vítimas</div>
+            </div>
+            <button type="button" class="btn-add" onclick="adicionarPessoa('vitima')">+ Adicionar Vítima</button>
+            <div style="margin: 20px 0; border-top: 1px solid #eee;"></div>
+
+            <div id="container-acusados">
+                <div class="section-title" style="color: var(--alert-red);">Acusados</div>
+            </div>
+            <button type="button" class="btn-add" style="background-color: var(--alert-red);" onclick="adicionarAcusado()">+ Adicionar Acusado</button>
+            <div style="margin: 20px 0; border-top: 1px solid #eee;"></div>
+
+            <div id="container-testemunhas">
+                <div class="section-title" style="color: #28a745;">Testemunhas</div>
+            </div>
+            <button type="button" class="btn-add" style="background-color: #28a745;" onclick="adicionarPessoa('testemunha')">+ Adicionar Testemunha</button>
+        </fieldset>
+
+        <!-- 4. APREENSÕES -->
+        <fieldset>
+            <legend>4. Apreensões</legend>
+
+            <div id="container-armas">
+                <div class="section-title">Armas de Fogo</div>
+            </div>
+            <button type="button" class="btn-add" onclick="adicionarArma()">+ Adicionar Arma</button>
+            <div style="margin: 15px 0;"></div>
+
+            <div id="container-cartuchos">
+                <div class="section-title">Munições e Cartuchos</div>
+            </div>
+            <button type="button" class="btn-add" style="background-color: #e0a800;" onclick="adicionarCartucho()">+ Adicionar Cartuchos</button>
+            <div style="margin: 15px 0;"></div>
+            
+            <div id="container-objetos">
+                <div class="section-title">Outros Objetos / Drogas / Veículos</div>
+            </div>
+            <button type="button" class="btn-add" style="background-color: #6c757d;" onclick="adicionarObjeto()">+ Adicionar Objeto/Droga</button>
+        </fieldset>
+
+        <!-- 5. HISTÓRICO E AUTO DE RESISTÊNCIA -->
+        <fieldset>
+            <legend>5. Relato e Providências</legend>
+            
+            <label>Histórico da Ocorrência:</label>
+            <textarea name="historico" rows="12" placeholder="Descreva o fato detalhadamente..." required style="margin-bottom: 20px;"></textarea>
+
+            <button type="button" class="btn-toggle-ar" onclick="toggleAutoResistencia()">
+                ⚠️ INCLUIR AUTO DE RESISTÊNCIA À PRISÃO
+            </button>
+
+            <div id="auto-resistencia-box" class="auto-resistencia-box">
+                <h4 style="color: var(--alert-red); margin-top: 0; text-transform: uppercase;">Auto de Resistência à Prisão</h4>
+                <p style="font-size: 13px; color: #555; font-style: italic; margin-bottom: 15px;">
+                    "No exercício legal de minha função policial, abordei e dei voz de prisão ao acusado abaixo, por ter encontrado o mesmo em flagrante delito e, porque o infrator resistiu à prisão, foi necessário uso da força."
+                </p>
+
+                <div class="row">
+                    <div class="col">
+                        <label>Nome do Acusado Resistente:</label>
+                        <input type="text" name="ar_acusado_nome">
+                    </div>
+                    <div class="col">
+                        <label>Natureza da Infração:</label>
+                        <input type="text" name="ar_infracao" placeholder="Ex: Roubo, Tráfico...">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label>Meios de Força (Moderada/Progressiva):</label>
+                        <input type="text" name="ar_meios" placeholder="Ex: Uso de algemas, técnica de imobilização...">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label>Resultado (Lesões/Danos):</label>
+                        <input type="text" name="ar_resultado" placeholder="Ex: Escoriações leves...">
+                    </div>
+                </div>
+                
+                <div class="section-title">Testemunhas do Auto de Resistência</div>
+                <div class="row">
+                    <div class="col">
+                        <label>Testemunha 01 (Nome/Mat):</label>
+                        <input type="text" name="ar_testemunha1">
+                    </div>
+                    <div class="col">
+                        <label>Testemunha 02 (Nome/Mat):</label>
+                        <input type="text" name="ar_testemunha2">
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- 6. TERMO DE ENTREGA -->
+        <fieldset>
+            <legend>6. Termo de Entrega / Recebimento</legend>
+            <div class="row">
+                <div class="col-small">
+                    <label>Hora Entrega:</label>
+                    <input type="time" name="entrega_hora">
+                </div>
+                <div class="col-small">
+                    <label>Data Entrega:</label>
+                    <input type="date" name="entrega_data">
+                </div>
+                <div class="col">
+                    <label>Recebedor (Delegado/Agente):</label>
+                    <input type="text" name="entrega_recebedor" placeholder="Nome e Matrícula/Cargo">
+                </div>
+            </div>
+            <div class="row" style="margin-top: 30px;">
+                <div class="col" style="border-top: 1px solid #000; margin: 20px 20px 0 0; padding-top: 5px; text-align: center;">
+                    <small>Assinatura do Condutor</small>
+                </div>
+                <div class="col" style="border-top: 1px solid #000; margin: 20px 0 0 20px; padding-top: 5px; text-align: center;">
+                    <small>Assinatura do Recebedor</small>
+                </div>
+            </div>
+        </fieldset>
+
+        <button type="submit" class="btn-submit">GERAR BOLETIM PDF</button>
+    </form>
+</div>
+
+<script>
+    let guarnicaoCount = 0;
+
+    function toggleAutoResistencia() {
+        const box = document.getElementById('auto-resistencia-box');
+        if (box.style.display === 'block') {
+            box.style.display = 'none';
+        } else {
+            box.style.display = 'block';
+            box.classList.add('active');
+        }
+    }
+
+    // Guarnição Dinâmica
+    function adicionarGuarnicao() {
+        const container = document.getElementById('container-guarnicoes');
+        const id = guarnicaoCount++;
+        const div = document.createElement('div');
+        div.className = 'guarnicao-box';
+        div.innerHTML = `
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <h4 style="margin:0; color:#003366;">GUARNIÇÃO #${id + 1}</h4>
+                <button type="button" class="btn-remove" onclick="this.parentElement.parentElement.remove()">REMOVER</button>
+            </div>
+            <div class="row">
+                <div class="col-small">
+                    <label>Prefixo VTR:</label>
+                    <input type="text" name="guarnicoes[${id}][vtr]" required>
+                </div>
+                <div class="col">
+                    <label>Comandante:</label>
+                    <input type="text" name="guarnicoes[${id}][comandante]">
+                </div>
+                <div class="col">
+                    <label>Motorista:</label>
+                    <input type="text" name="guarnicoes[${id}][motorista]">
+                </div>
+            </div>
+            <div id="patrulheiros-list-${id}"></div>
+            <button type="button" class="btn-add" style="background-color:#6c757d; margin-top:10px;" onclick="adicionarPatrulheiro(${id})">+ Patrulheiro</button>
+        `;
+        container.appendChild(div);
+        adicionarPatrulheiro(id);
+        adicionarPatrulheiro(id);
+    }
+
+    function adicionarPatrulheiro(gId) {
+        const list = document.getElementById(`patrulheiros-list-${gId}`);
+        const div = document.createElement('div');
+        div.className = 'row';
+        div.style.alignItems = 'flex-end';
+        div.innerHTML = `
+            <div class="col">
+                <label>Patrulheiro (Nome/Grad/Mat):</label>
+                <input type="text" name="guarnicoes[${gId}][patrulheiros][]">
+            </div>
+            <button type="button" class="btn-remove" style="height: 35px; margin-bottom: 2px;" onclick="this.parentElement.remove()">X</button>
+        `;
+        list.appendChild(div);
+    }
+
+    // Templates de Campos de Pessoas
+    function getDadosPessoaisHTML(tipo) {
+        return `
+            <div class="row">
+                <div class="col">
+                    <label>Nome Completo:</label>
+                    <input type="text" name="${tipo}_nome[]" required>
+                </div>
+                <div class="col">
+                    <label>Nome da Mãe:</label>
+                    <input type="text" name="${tipo}_mae[]">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-small">
+                    <label>Data Nasc.:</label>
+                    <input type="date" name="${tipo}_nasc[]">
+                </div>
+                <div class="col-small">
+                    <label>RG/Org:</label>
+                    <input type="text" name="${tipo}_rg[]">
+                </div>
+                <div class="col-small">
+                    <label>CPF:</label>
+                    <input type="text" name="${tipo}_cpf[]">
+                </div>
+                <div class="col-small">
+                    <label>CNH:</label>
+                    <input type="text" name="${tipo}_cnh[]">
+                </div>
+                <div class="col-medium">
+                    <label>Telefone:</label>
+                    <input type="text" name="${tipo}_tel[]">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label>Profissão:</label>
+                    <input type="text" name="${tipo}_profissao[]">
+                </div>
+                <div class="col">
+                    <label>Endereço Completo:</label>
+                    <input type="text" name="${tipo}_endereco[]">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label>Ponto de Referência:</label>
+                    <input type="text" name="${tipo}_referencia[]">
+                </div>
+            </div>
+        `;
+    }
+
+    function adicionarPessoa(tipo) {
+        const container = document.getElementById(`container-${tipo}s`);
+        const div = document.createElement('div');
+        div.className = `dynamic-item item-${tipo}`;
+        div.innerHTML = `
+            <button type="button" class="btn-remove" onclick="this.parentElement.remove()">REMOVER</button>
+            ${getDadosPessoaisHTML(tipo)}
+        `;
+        container.appendChild(div);
+    }
+
+    function adicionarAcusado() {
+        const container = document.getElementById('container-acusados');
+        const div = document.createElement('div');
+        div.className = 'dynamic-item item-acusado';
+        div.innerHTML = `
+            <button type="button" class="btn-remove" onclick="this.parentElement.remove()">REMOVER</button>
+            ${getDadosPessoaisHTML('acusado')}
+            
+            <div class="biometria-box">
+                <div class="section-title">Características Físicas / Biometria</div>
+                <div class="row">
+                    <div class="col-medium">
+                        <label>Alcunha (Apelido):</label>
+                        <input type="text" name="acusado_alcunha[]">
+                    </div>
+                    <div class="col-small">
+                        <label>Pele:</label>
+                        <select name="acusado_pele[]">
+                            <option value="">--</option>
+                            <option>Branca</option>
+                            <option>Parda</option>
+                            <option>Preta</option>
+                            <option>Amarela</option>
+                        </select>
+                    </div>
+                    <div class="col-small">
+                        <label>Olhos:</label>
+                        <input type="text" name="acusado_olhos[]">
+                    </div>
+                    <div class="col-small">
+                        <label>Cabelo:</label>
+                        <input type="text" name="acusado_cabelo[]">
+                    </div>
+                    <div class="col-small">
+                        <label>Altura:</label>
+                        <input type="text" name="acusado_altura[]">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label>Sinais Particulares (Tatuagens/Cicatrizes):</label>
+                        <input type="text" name="acusado_marcas[]" placeholder="Descreva tatuagens, cicatrizes, etc.">
+                    </div>
+                </div>
+            </div>
+        `;
+        container.appendChild(div);
+    }
+
+    function adicionarArma() {
+        const container = document.getElementById('container-armas');
+        const div = document.createElement('div');
+        div.className = 'dynamic-item';
+        div.innerHTML = `
+            <button type="button" class="btn-remove" onclick="this.parentElement.remove()">X</button>
+            <div class="row">
+                <div class="col-small">
+                    <label>Tipo:</label>
+                    <input type="text" name="arma_tipo[]">
+                </div>
+                <div class="col">
+                    <label>Marca/Modelo:</label>
+                    <input type="text" name="arma_modelo[]">
+                </div>
+                <div class="col-small">
+                    <label>Calibre:</label>
+                    <input type="text" name="arma_calibre[]">
+                </div>
+                <div class="col">
+                    <label>Série:</label>
+                    <input type="text" name="arma_serie[]">
+                </div>
+            </div>
+        `;
+        container.appendChild(div);
+    }
+
+    function adicionarCartucho() {
+        const container = document.getElementById('container-cartuchos');
+        const div = document.createElement('div');
+        div.className = 'dynamic-item';
+        div.innerHTML = `
+            <button type="button" class="btn-remove" onclick="this.parentElement.remove()">X</button>
+            <div class="row">
+                <div class="col-small">
+                    <label>Qtd:</label>
+                    <input type="number" name="cartucho_qtd[]">
+                </div>
+                <div class="col-small">
+                    <label>Calibre:</label>
+                    <input type="text" name="cartucho_calibre[]">
+                </div>
+                <div class="col">
+                    <label>Tipo (Intacto/Deflagrado):</label>
+                    <input type="text" name="cartucho_tipo[]">
+                </div>
+            </div>
+        `;
+        container.appendChild(div);
+    }
+
+    function adicionarObjeto() {
+        const container = document.getElementById('container-objetos');
+        const div = document.createElement('div');
+        div.className = 'dynamic-item';
+        div.innerHTML = `
+            <button type="button" class="btn-remove" onclick="this.parentElement.remove()">X</button>
+            <div class="row">
+                <div class="col-small">
+                    <label>Qtd:</label>
+                    <input type="text" name="obj_qtd[]">
+                </div>
+                <div class="col">
+                    <label>Descrição:</label>
+                    <input type="text" name="obj_descricao[]">
+                </div>
+            </div>
+        `;
+        container.appendChild(div);
+    }
+
+    // Inicializar com uma guarnição
+    window.onload = function() {
+        adicionarGuarnicao();
+    };
+</script>
+
+</body>
+</html>
